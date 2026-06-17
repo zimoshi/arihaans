@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plane</title>
+</head>
+<body>
+    <p>Do not click on me</p>
+    <canvas id="fullscreen-canvas"></canvas>
+    <style>
+    #fullscreen-canvas {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        /* pointer-events: auto allows the canvas to receive clicks */
+        pointer-events: auto; 
+        /* Ensures it sits on top of everything */
+        z-index: 9999; 
+        /* Keeps the canvas invisible */
+        background: transparent; 
+    }
+    </style>
+    <script>
+    function myActionFunction() {
+        const audio = new Audio('youaskedforthis.mp3');
+        audio.play();
+    }
+    const canvas = document.getElementById('fullscreen-canvas');
+    canvas.addEventListener('click', myActionFunction);
+    </script>
+
+</body>
+</html>
