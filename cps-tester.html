@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auto-Clicker Compatible CPS Tester</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            text-align: center;
+            background-color: #1a1a24;
+            color: #ecf0f1;
+            padding: 50px;
+        }
+        h1 { margin-bottom: 10px; color: #9b59b6; }
+        #click-area {
+            width: 300px;
+            height: 200px;
+            background-color: #9b59b6;
+            margin: 20px auto;
+            border-radius: 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+            user-select: none;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.5);
+            transition: transform 0.05s, background-color 0.1s;
+        }
+        #click-area:active {
+            transform: scale(0.96);
+            background-color: #8e44ad;
+        }
+        .stats {
+            font-size: 20px;
+            margin: 15px;
+        }
+        #score-board {
+            font-size: 28px;
+            color: #2ecc71;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        button:hover { background-color: #c0392b; }
+    </style>
+</head>
+<body>
+
+    <h1>Auto-Clicker CPS Tester</h1>
+    <p>Activate your auto-clicker inside the purple box below!</p>
+
+    <div id="click-area">START AUTO-CLICKER HERE</div>
+
+    <div class="stats">Time Remaining: <span id="timer">1.0</span>s</div>
+    <div class="stats">Total Clicks: <span id="clicks">0</span></div>
+    <div id="score-board"></div>
+
+    <button id="reset-btn">Reset Test</button>
+
+    <script>
+        let clicks = 0;
+        let timeLeft = 1.0;
+        let timerInterval = null;
+        let isPlaying = false;
+        let isFinished = false;
+
+        const clickArea = document.getElementById('click-area');
+        const timerDisplay = document.getElementById('timer');
+        const clicksDisplay = document.getElementById('clicks');
+        const scoreBoard = document.getElementById('score-board');
+        const resetBtn = document.getElementById('reset-btn');
+
+        // Central click handler to process physical and software-generated clicks safely
+        function registerClick(event) {
+            if (isFinished) return;
+
+            // Stop browser double-click zoom behaviors from eating inputs
+            event.preventDefault(); 
+
+            if (!isPlaying) {
+                isPlaying = true;
+                clickArea.textContent = "TESTING SPEED...";
+                startTimer();
+            }
+
+            clicks++;
+            clicksDisplay.textContent = clicks;
+        }
+
+        // Listeners for physical mouse clicks AND automated click script triggers
+        clickArea.addEventListener('mousedown', registerClick);
+        clickArea.addEventListener('click', function(e) {
+            // Only count 'click' if it was skipped by mousedown (typical for extensions/scripts)
+            if (e.detail === 0 || !('pointerType' in e)) {
+                registerClick(e);
+            }
+        });
+
+        function startTimer() {
+            const startTime = Date.now();
+            const totalDuration = 1000;
+
+            timerInterval = setInterval(() => {
+                const elapsedTime = Date.now() - startTime;
+                timeLeft = ((totalDuration - elapsedTime) / 1000).toFixed(1);
+
+                if (timeLeft <= 0) {
+                    timeLeft = "0.0";
+                    clearInterval(timerInterval);
+                    endGame();
+                }
+                timerDisplay.textContent = timeLeft;
+            }, 10); // Ultra-fast 10ms loop to prevent system lag at high speeds
+        }
+
+        function endGame() {
+            isPlaying = false;
+            isFinished = true;
+            clickArea.textContent = "TEST COMPLETE";
+            let cps = clicks.toFixed(0);
+            scoreBoard.textContent = `Registered Speed: ${cps} CPS!`;
+        }
+
+        resetBtn.addEventListener('click', () => {
+            clearInterval(timerInterval);
+            clicks = 0;
+            timeLeft = 1.0;
+            isPlaying = false;
+            isFinished = false;
+            clickArea.textContent = "START AUTO-CLICKER HERE";
+            timerDisplay.textContent = "1.0";
+            clicksDisplay.textContent = "0";
+            scoreBoard.textContent = "";
+        });
+    </script>
+</body>
+</html>
